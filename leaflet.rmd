@@ -1,0 +1,29 @@
+---
+title: "Leaflet Project"
+author: "Stephanie Huffaker"
+date: "April 15, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+```
+
+```{r include=FALSE}
+library(leaflet)
+```
+```{r}
+zooicon <- makeIcon(
+    iconUrl = "https://github.com/snhuffaker/Developing-Data-Products/blob/gh-pages/stlzoo.png?raw=true",
+    iconWidth = 31*215/230, iconHeight = 31,
+    iconAnchorX = 31*215/230/2, iconAnchorY = 16
+)
+
+my_map <- leaflet() %>% 
+  addTiles() %>%
+  addMarkers(lat = 38.6347, lng = -90.2906, popup = "<a href = 'https://www.stlzoo.org/about/'>World's Best Zoo and Greatest Free Attraction</a>", icon = zooicon)
+my_map
+
+
+
+```
