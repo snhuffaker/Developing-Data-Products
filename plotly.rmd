@@ -1,0 +1,48 @@
+---
+title: "Developing Data Products Plotly Project"
+author: "Stephanie Huffaker"
+date: "April 23, 2017"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, cache = TRUE)
+```
+
+## Purpose
+
+- This presentation has been created for the Coursera Developing Data Products course as part of the Data Science Specialization.
+
+- I chose a dataset I found on data.world of ebola cases, performed some preliminary data exploration and then created an interactive plot using the plotly package. For the source data, please visit <a href="https://data.world/brianray/ebola-cases">Data World</a>.
+
+
+## Overall Totals
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+ebola <- read.csv("https://query.data.world/s/c0pq1oihvdhkbuy41grxqqpvn",header=T);
+ebola$Date <- strptime(ebola$Date, format = "%Y-%m-%d")
+ebola$Date <- as.POSIXct(ebola$Date)
+ebola$y_m <- as.character(ebola$Date, "%Y-%m")
+
+if(!require(plotly)){
+    install.packages("plotly")
+    library(plotly)
+}
+
+totals <- aggregate(value ~ Country, data = ebola[ebola$Indicator == "Cumulative number of confirmed Ebola cases", ], max)
+names(totals) <- c("Country","Confirmed_Cases")
+totals <- merge(totals, aggregate(value ~ Country, data = ebola[ebola$Indicator == "Cumulative number of confirmed Ebola deaths", ], max))
+names(totals) <- c("Country", "Confirmed_Cases", "Confirmed_Deaths")
+totals <- totals[order(-totals$Confirmed_Cases),]
+totals <- head(totals, 5)
+totals$Country <- factor(totals$Country, levels = totals[order(totals$Confirmed_Cases),]$Country)
+
+p <- plot_ly(totals, y = ~Country, x = ~Confirmed_Cases, type = "bar", name = "Confirmed Cases") %>%
+  add_trace(x = ~Confirmed_Deaths, name = "Confirmed Deaths") %>%
+  layout(title = "Confirmed Ebola Cases and Deaths by Country (2014 - 2016)",
+         barmode = "stack",
+         xaxis = list(title = "Totals"),
+         yaxis = list(title = ""))
+p
+
+```
