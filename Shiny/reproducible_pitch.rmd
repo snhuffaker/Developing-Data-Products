@@ -1,0 +1,109 @@
+---
+title: "Shiny Project Reproducible Pitch"
+author: "Stephanie Huffaker"
+date: "April 30, 2017"
+output: ioslides_presentation
+smaller: true
+---
+
+```{r setup, include=FALSE, tidy = TRUE}
+knitr::opts_chunk$set(echo = FALSE, cache = TRUE)
+
+```
+
+## Purpose and Data {.smaller}
+
+- This presentation is the companion to my Shiny project for the Developing Data Products class on Coursera as part of the Data Science Specialization.
+- In this presentation, the process for creating the app along with some reproducible code will be provided.
+- Shiny application can be found at: https://snhuffaker.shinyapps.io/ddp_shiny_project/
+- Full code can be found at: https://github.com/snhuffaker/Developing-Data-Products
+- It is currently National Hockey League (NHL) playoffs time here in the United States and I decided to use NHL statistics as the basis for my project. I found a downloadable data file online which contained a variety of statistics and chose to use the stats by team.
+- After some preliminary data exploration, I decided to create a shiny app with a slider to choose a year to filter the data, some overal stats about that season, a plot of wins by team (sorted in decreasing order) and a dynamic table showing either the top 5 or bottom 5 teams that season with some additional statistics chosen by a radio button selector.
+  
+## Sample Plot {.smaller}
+
+```{r echo = TRUE}
+teams <- read.csv("Teams.csv")
+input <- 2015
+t <- teams[teams$year == as.character(input),]
+t$name <- factor(t$name, levels = t[order(t$W, decreasing = TRUE),]$name)
+p <- qplot(x = name, y = W, data = t) + ggtitle(paste(input," - ", input + 1, " Season Wins")) +
+    xlab("Teams Ranked by # of Wins") + ylab("Wins") + theme(axis.text.x=element_text(angle=90, hjust=1, size = 12),
+    axis.title=element_text(size=14, face = "bold"), plot.title=element_text(size=20, face = "bold"))
+print(p)
+```
+
+## Sample ShinyUI Code {.smaller}
+
+```{r echo = TRUE, eval = FALSE}
+library(shiny)
+shinyUI(fluidPage(
+  # Application title
+  titlePanel("NHL Team Statistics"),
+  # Sidebar with drop down for team and slider for year
+  sidebarLayout(
+    sidebarPanel(
+      sliderInput("season", "Use the slider to choose a year:", min = 1909, max = 2015, value = 2015, sep = ""),
+      radioButtons("tb", "Choose whether to show Top 5 or Bottom 5 teams for the year", choices = c("Top 5", "Bottom 5"), selected = "Top 5"),
+      textOutput("avgWins"),
+      textOutput("avgPts"),
+      textOutput("avgGF"),
+      textOutput(""),
+      textOutput(""),
+      h3("Documentation:"),
+      h4("This app contains data for all NHL seasons from 1909 to 2015. Use the slider to select a year to filter the data by season 
+          and the radio button to select whether to show the top 5 or bottom 5 teams from that season")
+    ),
+  # Show a plot of the information selected and either top 5 or bottom 5 teams based on radio button selection
+    mainPanel(
+      plotOutput("winsPlot"),
+      textOutput("tbhead"),
+      tableOutput("topbot")
+    )
+  )
+))
+
+```
+
+## Sample Shiny Server Code {.smaller}
+
+```{r eval = FALSE, echo = TRUE}
+library(shiny)
+library(ggplot2)
+teams <- read.csv("Teams.csv")
+shinyServer(function(input, output, session) {
+  output$winsPlot <- renderPlot({
+    t <- teams[teams$year == as.character(input$season),]
+    t$name <- factor(t$name, levels = t[order(t$W, decreasing = TRUE),]$name)
+    p <- qplot(x = name, y = W, data = t) + ggtitle(paste(input$season," - ", input$season + 1, " Season Wins")) +
+      xlab("Teams Ranked by # of Wins") + ylab("Wins") + theme(axis.text.x=element_text(angle=90, hjust=1, size = 12),
+      axis.title=element_text(size=14, face = "bold"), plot.title=element_text(size=20, face = "bold"))
+    print(p)})
+  mwin <- reactive({
+    t <- teams[teams$year == as.character(input$season),]
+    mean(t$W)})
+  output$avgWins <- renderText({
+    paste("Average wins: ",round(mwin(),2))})
+  mPts <- reactive({
+    t <- teams[teams$year == as.character(input$season),]
+    mean(t$Pts)runtime:shiny})
+  output$avgPts <- renderText({
+    paste("Average points: ",round(mPts(),2))})
+  mGF <- reactive({
+    t <- teams[teams$year == as.character(input$season),]
+    mean(t$GF)})
+  output$avgGF <- renderText({
+    paste("Average goals for: ",round(mGF(),2))})
+  output$tbhead <- renderText({
+    paste(input$tb," teams")})
+  tb <- reactive({
+    as.logical(ifelse(input$tb == "Top 5",1,0))})
+  output$tb <- renderText({
+    tb()})
+  output$topbot <- renderTable({
+    t <- teams[teams$year == as.character(input$season),]
+    topbot <- head(t[order(t$W, decreasing = tb()),],5)
+    topbot <- topbot[,-c(1,2,3,4,5,6,7,8,15,16,20,21,22,23,24,25,26,27)]})
+})
+```
+
