@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = FALSE, cache = TRUE)
 - This presentation is the companion to my Shiny project for the Developing Data Products class on Coursera as part of the Data Science Specialization.
 - In this presentation, the process for creating the app along with some reproducible code will be provided.
 - Shiny application can be found at: https://snhuffaker.shinyapps.io/ddp_shiny_project/
-- Full code can be found at: https://github.com/snhuffaker/Developing-Data-Products
+- Full code can be found at: https://github.com/snhuffaker/Developing-Data-Products/tree/gh-pages/Shiny
 - It is currently National Hockey League (NHL) playoffs time here in the United States and I decided to use NHL statistics as the basis for my project. I found a downloadable data file online which contained a variety of statistics and chose to use the stats by team.
 - After some preliminary data exploration, I decided to create a shiny app with a slider to choose a year to filter the data, some overal stats about that season, a plot of wins by team (sorted in decreasing order) and a dynamic table showing either the top 5 or bottom 5 teams that season with some additional statistics chosen by a radio button selector.
   
