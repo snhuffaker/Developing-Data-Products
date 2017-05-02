@@ -22,6 +22,7 @@ shinyUI(fluidPage(
                   value = 2015,
                   sep = ""),
       radioButtons("tb", "Choose whether to show Top 5 or Bottom 5 teams for the year", choices = c("Top 5", "Bottom 5"), selected = "Top 5"),
+      selectInput("teamdd", "Select a Team to see detailed stats", ""),
       textOutput("avgWins"),
       textOutput("avgPts"),
       textOutput("avgGF"),
@@ -29,14 +30,17 @@ shinyUI(fluidPage(
       textOutput(""),
       h3("Documentation:"),
       h4("This app contains data for all NHL seasons from 1909 to 2015. Use the slider to select a year to filter the data by season 
-          and the radio button to select whether to show the top 5 or bottom 5 teams from that season")
+          and the radio button to select whether to show the top 5 or bottom 5 teams from that season. Additionally choose a team 
+         from the drop down to see its stats for the selected season in the panel on the right.")
     ),
 
   # Show a plot of the information selected and either top 5 or bottom 5 teams based on radio button selection
     mainPanel(
       plotOutput("winsPlot"),
-      textOutput("tbhead"),
-      tableOutput("topbot")
+      h3(textOutput("tbhead")),
+      tableOutput("topbot"),
+      h3("Selected Team Stats"),
+      tableOutput("teamstats")
     )
   )
 ))

@@ -20,9 +20,13 @@ shinyServer(function(input, output, session) {
                                                                plot.title=element_text(size=20, face = "bold"))
     print(p)
   })
+  
   mwin <- reactive({
     t <- teams[teams$year == as.character(input$season),]
     mean(t$W)
+  })
+  output$season <- renderText({
+    input$season
   })
   
   output$avgWins <- renderText({
@@ -63,6 +67,17 @@ shinyServer(function(input, output, session) {
     t <- teams[teams$year == as.character(input$season),]
     topbot <- head(t[order(t$W, decreasing = tb()),],5)
     topbot <- topbot[,-c(1,2,3,4,5,6,7,8,15,16,20,21,22,23,24,25,26,27)]
-
   })
+  
+  observe({
+    t <- teams[teams$year == as.character(input$season),]
+    updateSelectInput(session, "teamdd", choices = unique(t$name))
+  })
+  
+  output$teamstats <- renderTable({
+    ts <- teams[teams$year == as.character(input$season),]
+    ts <- ts[ts$name == input$teamdd,]
+    ts <- ts[,-c(1,2,3,4,5,6,7,8,15,16,20,21,22,23,24,25,26,27)]
+  })
+  
 })
